@@ -12,12 +12,6 @@ This project provides an agentic, tool-driven system for interacting with a Post
 - **Docker Support:** Easy setup with Docker Compose for both the app and database.
 
 ## Architecture
-- **main.py:** Entry point; runs the agent workflow loop.
-- **scripts/workflow.py:** Defines `DatabaseWorkflow`, orchestrating LLM, tool selection, and execution.
-- **mcp/mcp_server.py:** Implements the MCP server exposing database tools (CRUD, schema, etc.).
-- **config/settings.py:** Loads configuration for Ollama (LLM) and database from environment variables.
-- **config/prompts.py:** System prompt guiding the agent's behavior.
-- **Dockerfile & docker-compose.yml:** Containerized setup for app and PostgreSQL.
 
 ```mermaid
 flowchart LR
@@ -40,6 +34,12 @@ flowchart LR
     C -- "LLM Responses" --> A
     D -- "Query Results" --> B
 ```
+- **main.py:** Entry point; runs the agent workflow loop.
+- **scripts/workflow.py:** Defines `DatabaseWorkflow`, orchestrating LLM, tool selection, and execution.
+- **mcp/mcp_server.py:** Implements the MCP server exposing database tools (CRUD, schema, etc.).
+- **config/settings.py:** Loads configuration for Ollama (LLM) and database from environment variables.
+- **config/prompts.py:** System prompt guiding the agent's behavior.
+- **Dockerfile & docker-compose.yml:** Containerized setup for app and PostgreSQL.
 
 ## Setup
 

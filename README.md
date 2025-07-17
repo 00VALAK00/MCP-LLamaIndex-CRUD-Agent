@@ -32,8 +32,8 @@ flowchart LR
     B -- "APIs" --> D
   
 
-    style A fill:#cef,stroke:#333,stroke-width:4px
-    style B fill:#eef,stroke:#333,stroke-width:15px
+    style A fill:#cef,stroke:#333,stroke-width:2px,stroke-length:4px
+    style B fill:#eef,stroke:#333,stroke-width:2px
     style C fill:#ffe,stroke:#333,stroke-width:2px
     style D fill:#fcf,stroke:#333,stroke-width:2px
 ```

@@ -1,0 +1,1 @@
+"The database contains at least two tables, as previously listed ('customers', 'products'). The 'customers' table has columns id (integer), name (text), email (text), and signup_date (date)."

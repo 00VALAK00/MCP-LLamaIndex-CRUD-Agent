@@ -8,28 +8,31 @@ from llama_index.core.agent.workflow import (
     ToolCall)
 from llama_index.core.workflow import Context
 
+
 import sys
 import subprocess
 import os
 from pathlib import Path
 
 SYSTEM_PROMPT = """
-You are a helpful assistant that can work with our database software.
+You are a software engineer that can wordk with our database software.
 """
 
 llm = Ollama(
-    model="llama3.1:latest",
+    model="qwen3:latest",
     context_window=10000,
     max_tokens=2500,
     temperature=0.6,
     request_timeout=120.0,
 )
 
+
 async def get_agent(tools: McpToolSpec):
     tools = await tools.to_tool_list_async()
+
     agent = FunctionAgent(
         name="Agent",
-        description="An agent that can work with Our Database software.",
+        description="An agent that can work with Our Database software",
         tools=tools,
         llm=llm,
         system_prompt=SYSTEM_PROMPT,
@@ -66,8 +69,7 @@ async def main():
     print("Agent is ready...")
     while True:
         user_input = input("What would you like to do?")
-        response = await handle_user_message(user_input, agent, agent_context,verbose=True)
-        print(response)
+        response = await handle_user_message(user_input, agent, agent_context=agent_context,verbose=True)
 
 if __name__ == "__main__":
     success = asyncio.run(main())

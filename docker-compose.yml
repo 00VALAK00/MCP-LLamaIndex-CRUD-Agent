@@ -2,31 +2,62 @@ version: '3.8'
 
 # Define the services (containers) that make up your application
 services:
-  # Service for the PostgreSQL database
+  # PostgreSQL Database Service
   db:
-    # Use the official PostgreSQL image from Docker Hub
-    image: postgres:13
-    # Restart the container if it stops for any reason
-    restart: always
-    # Environment variables for PostgreSQL configuration
+    image: postgres:latest
+    container_name: postgres_db
+    restart: unless-stopped
     environment:
-    
-      # Required: PostgreSQL superuser password
-      POSTGRES_PASSWORD: postgres
-      # Optional: Default database to create on first run
-      POSTGRES_DB: customers
-      # Optional: Default superuser username
+      POSTGRES_DB: testdb
       POSTGRES_USER: postgres
-    # Map port 5432 on the host to port 5432 in the container
-    # This allows you to connect to the database from your host machine
+      POSTGRES_PASSWORD: postgres
     ports:
       - "5432:5432"
-    # Define a named volume to persist database data
-    # This ensures your data is not lost when the container is stopped or removed
     volumes:
       - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d testdb"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - app_network
+
+  # Application service
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+        
+    stdin_open: true
+    tty: true
+    command: bash
+    container_name: Agent_MCP_Server
+    restart: unless-stopped
+    env_file:
+      - .env.docker
+    environment:
+      - ENVIRONMENT=docker
+    ports:
+      - "8000:8000"
+      
+    extra_hosts:
+        - "host.docker.internal:host-gateway"
+    volumes:
+      - ./:/app
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app_network
 
 # Define the named volumes used by the services
 volumes:
-  # Volume for PostgreSQL data persistence
   db_data:
+    driver: local
+
+# Define the networks used by the services
+networks:
+  app_network:
+    driver: bridge

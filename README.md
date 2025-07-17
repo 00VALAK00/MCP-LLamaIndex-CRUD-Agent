@@ -4,12 +4,15 @@ This project demonstrates how to create an MCP server and an AI agent using Llam
 
 ## Features
 
+- **🔄 Organized Workflow**: Schema-first approach that starts with schema discovery and then executes queries
 - **MCP-Compatible FunctionAgent**: Uses LlamaIndex's FunctionAgent with proper MCP protocol integration
 - **Dynamic Tool Discovery**: Automatically discovers MCP tools from the server
-- **PostgreSQL Database Tools**: MCP server with database operations (create_table, insert_data, get_data)
+- **PostgreSQL Database Tools**: MCP server with comprehensive database operations
 - **Ollama Integration**: Uses local Ollama LLM for processing
 - **Interactive Interface**: Command-line interface for database operations
 - **Docker Support**: PostgreSQL database containerized with Docker Compose
+- **📊 Workflow Logging**: Automatic logging of all operations for debugging and tracking
+- **🎯 Predefined Templates**: Ready-to-use workflow templates for common scenarios
 
 ## Prerequisites
 
@@ -49,13 +52,56 @@ ollama pull llama3.1:latest
 ollama serve
 ```
 
-### 4. Run the Agent
+### 4. Run the Workflow
 
+#### Option A: Organized Workflow (Recommended)
 ```bash
+# Run the structured workflow that starts with schema discovery
+python scripts/workflow.py
+
+# Or run example workflows
+python scripts/example_workflow.py
+```
+
+#### Option B: Original Agent
+```bash
+# Run the original agent
 python scripts/agent.py
 ```
 
 ## Usage Example
+
+### Organized Workflow (Recommended)
+
+```
+🗂️  DATABASE WORKFLOW STARTED
+============================================================
+
+🔍 STEP 1: Discovering Database Schema
+📝 Schema Discovery: Starting database schema discovery
+🔧 Calling tool: list_tables
+✅ Tool list_tables completed
+🔧 Calling tool: get_table_schema
+✅ Tool get_table_schema completed
+📝 Schema Discovery: Completed
+
+⚡ STEP 2: Executing Queries for: Create a customers table
+📝 Query Execution: Processing request: Create a customers table
+🔧 Calling tool: create_table
+✅ Tool create_table completed
+📝 Query Execution: Completed
+
+📊 STEP 3: Workflow Results
+========================================
+📋 Schema Information:
+Tables found: customers
+📋 Query Results:
+✅ Table 'customers' created successfully
+
+💾 Workflow log saved to: workflow_log.json
+```
+
+### Original Agent
 
 ```
 Server is running...

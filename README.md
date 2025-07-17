@@ -16,23 +16,27 @@ This project provides an agentic, tool-driven system for interacting with a Post
 ```mermaid
 flowchart LR
     subgraph UserAgent["FunctionAgent (LlamaIndex)"]
-        A
+        A[FunctionAgent]
     end
     subgraph MCP["MCP Server"]
-        B
+        B[MCP Server]
     end
     subgraph Ollama["Ollama Server"]
-        C
+        C[LLM (e.g., Llama 3)]
     end
     subgraph DB["PostgreSQL DB"]
-        D
+        D[PostgreSQL DB]
     end
 
-    A -- "MCP Protocol" --> B
-    C -- "Tool requests" --> B
+    A -- "MCP Protocol Requests/Responses" --> B
+    A -- "LLM Prompts/Completions" --> C
     B -- "SQL Queries" --> D
-    C -- "LLM Responses" --> A
     D -- "Query Results" --> B
+
+    style A fill:#cef,stroke:#333,stroke-width:2px
+    style B fill:#eef,stroke:#333,stroke-width:2px
+    style C fill:#ffe,stroke:#333,stroke-width:2px
+    style D fill:#fcf,stroke:#333,stroke-width:2px
 ```
 - **main.py:** Entry point; runs the agent workflow loop.
 - **scripts/workflow.py:** Defines `DatabaseWorkflow`, orchestrating LLM, tool selection, and execution.

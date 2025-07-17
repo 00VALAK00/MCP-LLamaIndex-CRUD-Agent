@@ -21,7 +21,7 @@ flowchart LR
         B[MCP Server]
     end
     subgraph Ollama["Ollama Server"]
-        C[LLM (e.g., Llama 3)]
+        C[LLM]
     end
     subgraph DB["PostgreSQL DB"]
         D[PostgreSQL DB]

@@ -30,7 +30,7 @@ flowchart LR
 
     A -- "MCP Protocol Requests/Responses" --> B
     A -- "LLM Prompts/Completions" --> C
-    B -- "" --> D
+    B -- "ww" --> D
     D -- "Query Results" --> B
 
     style A fill:#cef,stroke:#333,stroke-width:2px

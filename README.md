@@ -29,8 +29,8 @@ flowchart LR
 
     A -- "MCP Protocol Requests/Responses" --> B
     A -- "LLM Prompts/Completions" --> C
-    B -- "SQL Queries" --> D
-    D -- "Query Results" --> B
+    B -- "APIs" --> D
+  
 
     style A fill:#cef,stroke:#333,stroke-width:2px
     style B fill:#eef,stroke:#333,stroke-width:2px

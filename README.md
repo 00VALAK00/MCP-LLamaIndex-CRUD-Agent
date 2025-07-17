@@ -28,7 +28,7 @@ flowchart LR
     end
 
     A -- "MCP Protocol Requests/Responses" --> B
-    A -- "LLM Prompts/Completions" --> C
+    C -- "Integration" --> A
     B -- "APIs" --> D
   
 

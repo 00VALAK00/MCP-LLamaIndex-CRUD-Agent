@@ -29,7 +29,7 @@ flowchart LR
     end
 
     A -- "MCP Protocol" --> B
-    B <-- "Tool requests" -- C
+    C -- "Tool requests" --> B
     B -- "SQL Queries" --> D
     C -- "LLM Responses" --> A
     D -- "Query Results" --> B

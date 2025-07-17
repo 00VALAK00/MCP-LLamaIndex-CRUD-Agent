@@ -1,169 +1,114 @@
-# AutoGen LlamaIndex Ollama Agent with MCP Tools
+# autogen-llamaindex-ollama-agenitc
 
-This project demonstrates how to create an MCP server and an AI agent using LlamaIndex and Ollama that can interact with a PostgreSQL database through MCP (Model Context Protocol).
+## Overview
+
+This project provides an agentic, tool-driven system for interacting with a PostgreSQL database using natural language. It leverages LlamaIndex, Ollama, and a custom workflow to interpret user requests, select appropriate database tools, and execute operations transparently. The system is designed for extensibility and ease of use, supporting both Dockerized and manual setups.
 
 ## Features
-
-- **🔄 Organized Workflow**: Schema-first approach that starts with schema discovery and then executes queries
-- **MCP-Compatible FunctionAgent**: Uses LlamaIndex's FunctionAgent with proper MCP protocol integration
-- **Dynamic Tool Discovery**: Automatically discovers MCP tools from the server
-- **PostgreSQL Database Tools**: MCP server with comprehensive database operations
-- **Ollama Integration**: Uses local Ollama LLM for processing
-- **Interactive Interface**: Command-line interface for database operations
-- **Docker Support**: PostgreSQL database containerized with Docker Compose
-- **📊 Workflow Logging**: Automatic logging of all operations for debugging and tracking
-- **🎯 Predefined Templates**: Ready-to-use workflow templates for common scenarios
-
-## Prerequisites
-
-- **PostgreSQL Database**: Running instance (or use Docker)
-- **Ollama**: Install and run with llama3.1 model
-- **Python 3.12+**: Required for the project
-- **Docker & Docker Compose**: For running PostgreSQL database
-
-## Quick Start
-
-### 1. Install Dependencies
-
-```bash
-pip install -e .
-```
-
-### 2. Environment Configuration
-
-Create a `.env` file in the project root:
-
-```env
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=customers
-DB_USER=postgres
-DB_PASSWORD=postgres
-```
-
-### 3. Start Services
-
-```bash
-# Start PostgreSQL database
-docker-compose up -d db
-
-# Start Ollama (in a separate terminal)
-ollama pull llama3.1:latest
-ollama serve
-```
-
-### 4. Run the Workflow
-
-#### Option A: Organized Workflow (Recommended)
-```bash
-# Run the structured workflow that starts with schema discovery
-python scripts/workflow.py
-
-# Or run example workflows
-python scripts/example_workflow.py
-```
-
-#### Option B: Original Agent
-```bash
-# Run the original agent
-python scripts/agent.py
-```
-
-## Usage Example
-
-### Organized Workflow (Recommended)
-
-```
-🗂️  DATABASE WORKFLOW STARTED
-============================================================
-
-🔍 STEP 1: Discovering Database Schema
-📝 Schema Discovery: Starting database schema discovery
-🔧 Calling tool: list_tables
-✅ Tool list_tables completed
-🔧 Calling tool: get_table_schema
-✅ Tool get_table_schema completed
-📝 Schema Discovery: Completed
-
-⚡ STEP 2: Executing Queries for: Create a customers table
-📝 Query Execution: Processing request: Create a customers table
-🔧 Calling tool: create_table
-✅ Tool create_table completed
-📝 Query Execution: Completed
-
-📊 STEP 3: Workflow Results
-========================================
-📋 Schema Information:
-Tables found: customers
-📋 Query Results:
-✅ Table 'customers' created successfully
-
-💾 Workflow log saved to: workflow_log.json
-```
-
-### Original Agent
-
-```
-Server is running...
-Agent is ready...
-What would you like to do? Create a customers table
-Calling tool create_table with kwargs {'table_name': 'customers'}
-✅ Table 'customers' created successfully.
-
-What would you like to do? Add a new customer named John Doe with email john@example.com
-Calling tool insert_data with kwargs {'query': "INSERT INTO customers (name, email) VALUES ('John Doe', 'john@example.com')"}
-✅ Data inserted successfully
-
-What would you like to do? Show me all customers
-Calling tool get_data with kwargs {'query': 'SELECT * FROM customers'}
-📋 Customers:
-ID: 1, Name: John Doe, Email: john@example.com
-```
+- **Natural Language Database Operations:** Query, insert, update, and manage your database using plain English.
+- **Tool-Driven Execution:** All actions are performed via explicit tool calls, ensuring transparency and auditability.
+- **PostgreSQL Backend:** Uses PostgreSQL as the default database (configurable).
+- **Agent Workflow:** Modular workflow with memory, event-driven steps, and LLM-powered reasoning.
+- **Docker Support:** Easy setup with Docker Compose for both the app and database.
 
 ## Architecture
+- **main.py:** Entry point; runs the agent workflow loop.
+- **scripts/workflow.py:** Defines `DatabaseWorkflow`, orchestrating LLM, tool selection, and execution.
+- **mcp/mcp_server.py:** Implements the MCP server exposing database tools (CRUD, schema, etc.).
+- **config/settings.py:** Loads configuration for Ollama (LLM) and database from environment variables.
+- **config/prompts.py:** System prompt guiding the agent's behavior.
+- **Dockerfile & docker-compose.yml:** Containerized setup for app and PostgreSQL.
 
+```mermaid
+flowchart LR
+    subgraph UserAgent["FunctionAgent (LlamaIndex)"]
+        A
+    end
+    subgraph MCP["MCP Server"]
+        B
+    end
+    subgraph Ollama["Ollama Server"]
+        C
+    end
+    subgraph DB["PostgreSQL DB"]
+        D
+    end
+
+    A -- "MCP Protocol" --> B
+    B -- "Tool Calls" --> C
+    B -- "SQL Queries" --> D
+    C -- "LLM Responses" --> A
+    D -- "Query Results" --> B
 ```
-┌─────────────────┐    MCP Protocol    ┌─────────────────┐
-│  FunctionAgent  │ ◄────────────────► │   MCP Server    │
-│   (LlamaIndex)  │                    │  (PostgreSQL)   │
-└─────────────────┘                    └─────────────────┘
-         │                                       │
-         │ Tool Calls                            │
-         ▼                                       ▼
-┌─────────────────┐                    ┌─────────────────┐
-│  Ollama LLM     │                    │  PostgreSQL DB  │
-└─────────────────┘                    └─────────────────┘
+
+## Setup
+
+### 1. Docker Compose (Recommended)
+Ensure you have Docker and Docker Compose installed.
+
+```sh
+git clone <this-repo-url>
+docker-compose up --build
 ```
 
-## MCP Tools
+- The app will be available in the `Agent_MCP_Server` container.
+- PostgreSQL runs in the `postgres_db` container (default user: `postgres`, password: `postgres`, db: `testdb`).
+- You can customize environment variables in `.env.docker`.
 
-- **`create_table`**: Creates new tables in the database
-- **`insert_data`**: Adds new data to database tables  
-- **`get_data`**: Retrieves data from database tables
+### 2. Manual Setup
+- Install Python 3.12+
+- Install dependencies:
+  ```sh
+  pip install -r requirements.txt  # or use pyproject.toml with pip/uv
+  ```
+- Ensure PostgreSQL is running and accessible (see `config/settings.py` for defaults).
+- Set environment variables as needed (see `.env.docker` for examples).
+- Start the MCP server and main workflow:
+  ```sh
+  python mcp/mcp_server.py &
+  python main.py
+  ```
+
+## Usage
+- On startup, the agent will prompt: `What would you like to do?`
+- Enter natural language requests, e.g.:
+  - `Show me all the tables in the database.`
+  - `Add a new customer: 'Alice', 'alice@email.com', 25 to the customers table.`
+- The agent will:
+  1. Interpret your request
+  2. Select and call the appropriate database tool(s)
+  3. Return the result
+
+### Example Interaction
+```
+What would you like to do? Show me all the tables in the database.
+Tool: list_tables()
+Output: The available tables are: customers, products, orders
+```
+
+## Directory Structure
+```
+config/           # Prompts and settings
+mcp/              # MCP server and database tool definitions
+scripts/          # Workflow and event logic
+main.py           # Entry point
+Dockerfile        # App container
+docker-compose    # Initiates the app, database and MCP server (Make sure ollama is serving)
+```
 
 ## Dependencies
+- Python 3.12+
+- llama-index-llms-ollama
+- mcp[cli]
+- mlflow
+- ollama
+- psycopg2-binary
+- python-dotenv
+- (see `pyproject.toml` for full list)
 
-- **llama-index-llms-ollama**: Ollama LLM integration
-- **mcp[cli]**: Model Context Protocol implementation
-- **ollama**: Ollama client library
-- **psycopg2**: PostgreSQL adapter
-- **pydantic-settings**: Settings management
-- **python-dotenv**: Environment variable loading
+## Configuration
+- **Ollama LLM:** Set via environment variables (see `config/settings.py`).
+- **Database:** Set via environment variables (see `config/settings.py`).
 
-## Development
-
-### Adding New MCP Tools
-
-1. Add new `@mcp.tool` decorated functions to `mcp/mcp_server.py`
-2. The agent will automatically discover new tools
-3. No changes needed to the agent code
-
-### Extending the Agent
-
-1. Modify the `get_agent()` function in `scripts/agent.py`
-2. Add new methods for custom functionality
-3. Update the interactive chat loop as needed
-
-## License
-
-This project is open source and available under the MIT License.
+## Contributing
+Pull requests and issues are welcome! Please open an issue to discuss major changes.

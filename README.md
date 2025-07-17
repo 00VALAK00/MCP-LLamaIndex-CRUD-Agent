@@ -12,7 +12,6 @@ This project provides an agentic, tool-driven system for interacting with a Post
 - **Docker Support:** Easy setup with Docker Compose for both the app and database.
 
 ## Architecture
-
 ```mermaid
 flowchart LR
     subgraph UserAgent["FunctionAgent (LlamaIndex)"]

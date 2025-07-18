@@ -1,8 +1,8 @@
-# autogen-llamaindex-ollama-agenitc
+# MCP-AgentDB
 
 ## Overview
 
-This project provides an agentic, tool-driven system for interacting with a PostgreSQL database using natural language. It leverages LlamaIndex, Ollama, and a custom workflow to interpret user requests, select appropriate database tools, and execute operations transparently. The system is designed for extensibility and ease of use, supporting both Dockerized and manual setups.
+This project provides an agentic, MCP-tool-driven system for interacting with a PostgreSQL database using LLMs. It leverages LlamaIndex, Ollama, and a custom workflow to interpret user requests, select appropriate database tools, and execute operations transparently. The system is designed for extensibility and ease of use.
 
 ## Features
 - **Natural Language Database Operations:** Query, insert, update, and manage your database using plain English.

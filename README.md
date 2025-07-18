@@ -12,34 +12,37 @@ This project provides an agentic, tool-driven system for interacting with a Post
 - **Docker Support:** Easy setup with Docker Compose for both the app and database.
 
 ## Architecture
+```mermaid
+flowchart LR
+    subgraph UserAgent["FunctionAgent (LlamaIndex)"]
+        A[FunctionAgent]
+    end
+    subgraph MCP["MCP Server"]
+        B[MCP Server]
+    end
+    subgraph Ollama["Ollama Server"]
+        C[LLM]
+    end
+    subgraph DB["PostgreSQL DB"]
+        D[PostgreSQL DB]
+    end
+
+    A -- "MCP Protocol Requests/Responses" --> B
+    C -- "Integration" --> A
+    B -- "APIs" --> D
+  
+
+    style A fill:#cef,stroke:#333,stroke-width:2px,stroke-length:4px
+    style B fill:#eef,stroke:#333,stroke-width:2px,stroke-length:8px
+    style C fill:#ffe,stroke:#333,stroke-width:2px
+    style D fill:#fcf,stroke:#333,stroke-width:2px
+```
 - **main.py:** Entry point; runs the agent workflow loop.
 - **scripts/workflow.py:** Defines `DatabaseWorkflow`, orchestrating LLM, tool selection, and execution.
 - **mcp/mcp_server.py:** Implements the MCP server exposing database tools (CRUD, schema, etc.).
 - **config/settings.py:** Loads configuration for Ollama (LLM) and database from environment variables.
 - **config/prompts.py:** System prompt guiding the agent's behavior.
 - **Dockerfile & docker-compose.yml:** Containerized setup for app and PostgreSQL.
-
-```mermaid
-flowchart LR
-    subgraph UserAgent["FunctionAgent (LlamaIndex)"]
-        A
-    end
-    subgraph MCP["MCP Server"]
-        B
-    end
-    subgraph Ollama["Ollama Server"]
-        C
-    end
-    subgraph DB["PostgreSQL DB"]
-        D
-    end
-
-    A -- "MCP Protocol" --> B
-    B -- "Tool Calls" --> C
-    B -- "SQL Queries" --> D
-    C -- "LLM Responses" --> A
-    D -- "Query Results" --> B
-```
 
 ## Setup
 

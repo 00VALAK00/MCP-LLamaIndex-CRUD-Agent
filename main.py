@@ -2,11 +2,6 @@ import asyncio
 import sys
 from scripts.workflow import DatabaseWorkflow
 from llama_index.core.workflow import Context
-import mlflow
-
-
-mlflow.llama_index.autolog()
-mlflow.set_tracking_uri("http://localhost:5000")
 
 async def main():
     workflow = DatabaseWorkflow()

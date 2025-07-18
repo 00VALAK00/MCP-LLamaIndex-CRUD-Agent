@@ -87,6 +87,7 @@ class DatabaseWorkflow(Workflow):
         """Prepares the react prompt, using the chat history, tools, and current reasoning (if any)"""
 
         steps = await workflow_context.get("steps", default=[])
+        logger.info(f"🔍 Steps: {steps}")
 
         chat_history = self.memory.get()
 

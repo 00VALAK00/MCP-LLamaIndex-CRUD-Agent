@@ -1,4 +1,5 @@
 import argparse
+from typing import List, Dict, Any
 import sys
 from pathlib import Path
 
@@ -8,8 +9,7 @@ sys.path.append(str(Path(__file__).parent.parent))
 from mcp.server.fastmcp import FastMCP
 import psycopg2
 from psycopg2 import Error
-import os 
-from typing import  Optional
+from typing import  Dict, Optional
 from config.settings import DatabaseConfig
 
 import logging
@@ -81,14 +81,12 @@ def create_table(table_name: str, schema: str):
         cursor.close()
         conn.close()
 
-@mcp.tool(description="inserts a single record into a specified table")
-def insert_record(table_name: str, data: str):
+@mcp.tool(description="inserts single/multiple records into a specified table")
+def insert_record(table_name: str, data: List[Dict[str, Any]]):
     """
     Args:
-        table_name (str): Name of the table to insert into
-        table_schema (str): schema for the table without a type (you must retrieve this from the get_table_schema tool) e.g: "name, email, age"
-        data (str): string, e.g.:
-            "John Doe, john@example.com, 30"
+        table_name str : Name of the table to insert into e.g. employees
+            data Dict[str, Any]): single dict (you need the schema first), e.g. [{'col1': 'Emily Chen', 'col2': 'emily@example.com', 'col3': 32}]
     
     Returns:
         dict: Status message with success/failure information and inserted record ID
@@ -97,28 +95,30 @@ def insert_record(table_name: str, data: str):
     if not conn:
         return {"success": False, "message": "Failed to establish database connection"}
     
+    schema = get_table_schema(table_name).get('schema', {})
+    columns = ", ".join([col_schema['column_name'] for col_schema in schema])
     cursor = conn.cursor()
-    try:    
+    
+    placeholders = ", ".join(["%s"] * len(data[0]))
+    logger.error(f"🔍 Columns: {columns}")
+
+    assert len(data) > 0, "Data is empty"
+
+
+    try:   
+        values_list = [tuple(record.values()) for record in data]
+             
         # query to insert the record into the table e.g: INSERT INTO users (name, email, age) VALUES ('John Doe', 'john@example.com', 30)
-        insert_query = f"""
-        INSERT INTO {table_name} (data)
-        RETURNING id;
+        insert_query = f""" 
+        INSERT INTO {table_name} ({columns}) VALUES ({placeholders});
         """        
 
-        logger.warning(f"Insert query: {insert_query.format(data=data)}")
-
-        cursor.execute(insert_query)
-        result = cursor.fetchone()
-        if result:
-            inserted_id = result[0]
-        else:
-            inserted_id = None
+        cursor.executemany(insert_query, values_list)
         conn.commit()
         
         return {
             "success": True, 
             "message": f"Record inserted successfully", 
-            "inserted_id": inserted_id
         }
         
     except Error as e:
@@ -574,6 +574,11 @@ def main():
 
     # Start the MCP server
     mcp.run(transport="sse")
+
+    # schema = get_table_schema(table_name='customers')
+
+    # result = insert_record(table_name='customers', data=[{"id":1, 'name': 'John Doe', 'email': 'john@example.com', 'age': 30}, {'id':2, 'name': 'Jane Doe', 'email': 'jane@example.com', 'age': 25} ])
+    # print(result)
 
 if __name__ == "__main__":
     main()

@@ -40,18 +40,19 @@ class DatabaseWorkflow(Workflow):
         self.llm = None
         self.mcp_client = None
         self.tools = None
-        self.ollama_config = OllamaConfig.get_config()
+        self.ollama_config = None
         self.memory = Memory.from_defaults()
 
 
-    async def initialize(self):
+    async def initialize(self,is_docker: bool):
         """Initialize the MCP server and agent"""
         logger.info("🚀 Initializing MCP server...")
 
         # Initialize LLM
+        self.ollama_config = OllamaConfig.get_config(is_docker)
         self.llm = Ollama(
             model= self.ollama_config["model"],
-            # base_url= self.ollama_config["base_url"],
+            base_url= self.ollama_config["base_url"],
             context_window= self.ollama_config["context_window"],
             max_tokens= self.ollama_config["max_tokens"],
             temperature= self.ollama_config["temperature"],
@@ -80,15 +81,13 @@ class DatabaseWorkflow(Workflow):
         self.memory.put(ChatMessage(role="system", content=SYSTEM_PROMPT))
         self.memory.put(ChatMessage(role="user", content=user_input))  
         await workflow_context.store.set("steps", [])
-        return PrepEvent()
+        return PrepEvent()  
 
     @step
     async def prepare_llm_prompt(self, workflow_context: Context, ev : PrepEvent) -> LLMInputEvent:
         """Prepares the react prompt, using the chat history, tools, and current reasoning (if any)"""
 
         steps = await workflow_context.get("steps", default=[])
-        logger.info(f"🔍 Steps: {steps}")
-
         chat_history = self.memory.get()
 
         llm_input = ReActChatFormatter().format(tools=self.tools, chat_history=chat_history, current_reasoning=steps)
@@ -122,11 +121,17 @@ class DatabaseWorkflow(Workflow):
                 return StopEvent(result=step.response)
             elif isinstance(step, ActionReasoningStep):
                 # Tool call are requested by the LLM
+                logger.info(f"🔍 Action: {step.thought}")
+                logger.info(f"🔍 Action inputs: {step.action_input}")
+                logger.info(f"🔍 Tool call requested: {step.action}")
                 return ToolCallEvent(tool_calls=[ToolSelection(
                                                 tool_id="Tool_ID",
                                                 tool_name=step.action, 
                                                 tool_kwargs=step.action_input)
                                                 ])
+            elif isinstance(step, ObservationReasoningStep):
+                # No tool call are requested by the LLM
+                logger.info(f"🔍 Observation: {step.observation}")
             
         except Exception as e:
             error_step = ObservationReasoningStep(observation=f"Error parsing LLM output: {e}")
@@ -140,7 +145,6 @@ class DatabaseWorkflow(Workflow):
         self, ctx: Context, ev: ToolCallEvent
     ) -> PrepEvent:
         tool_calls = ev.tool_calls
-        logger.info("🔍 Handling tool calls")
 
 
         for tool_call in tool_calls:
@@ -148,9 +152,8 @@ class DatabaseWorkflow(Workflow):
             if tool := self.tools_dict.get(tool_call.tool_name):
                 try:
                     tool_call_result = tool(** tool_call.tool_kwargs)
-                    logger.info(f"🔍 Tool call result: {tool_call_result}")
-
                     step = ObservationReasoningStep(observation=tool_call_result.content)
+                    logger.info(f"🔍 Tool call result: {step.observation}")
                 except Exception as e:
                     step = ObservationReasoningStep(observation=f"Error calling tool {tool.metadata.get_name}: {e}")
             else:

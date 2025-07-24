@@ -18,11 +18,12 @@ class OllamaConfig:
     """Ollama configuration from environment variables"""
     
     @staticmethod
-    def get_config() -> dict:
+    def get_config(is_docker: bool) -> dict:
         """Get Ollama configuration as a dictionary"""
         return {
             "model": os.getenv("OLLAMA_MODEL", "qwen3:latest"),
-            "base_url": os.getenv("OLLAMA_BASE_URL", "http://host.docker.internal:11434"),
+            "base_url": os.getenv("OLLAMA_BASE_URL_LOCAL") if not is_docker else os.getenv("OLLAMA_BASE_URL_DOCKER"),
+            "base_url": os.getenv("OLLAMA_BASE_URL_LOCAL"),
             "context_window": int(os.getenv("OLLAMA_CONTEXT_WINDOW", "10000")),
             "max_tokens": int(os.getenv("OLLAMA_MAX_TOKENS", "2500")),
             "temperature": float(os.getenv("OLLAMA_TEMPERATURE", "0.6")),

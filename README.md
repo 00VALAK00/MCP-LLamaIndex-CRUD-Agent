@@ -112,5 +112,4 @@ docker-compose    # Initiates the app, database and MCP server (Make sure ollama
 - **Ollama LLM:** Set via environment variables (see `config/settings.py`).
 - **Database:** Set via environment variables (see `config/settings.py`).
 
-## Contributing
-Pull requests and issues are welcome! Please open an issue to discuss major changes.
+Have Fun experimenting 

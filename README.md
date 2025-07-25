@@ -68,7 +68,7 @@ docker-compose up --build
 - Set environment variables as needed (see `.env.docker` for examples).
 - Start the MCP server and main workflow:
   ```sh
-  python main.py \\This will spin up the server and initiate the workflow
+  python main.py # This will spin up the server and initiate the workflow
   ```
 
 ## Usage

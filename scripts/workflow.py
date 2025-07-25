@@ -50,6 +50,7 @@ class DatabaseWorkflow(Workflow):
 
         # Initialize LLM
         self.ollama_config = OllamaConfig.get_config(is_docker)
+        print(f"config: {self.ollama_config}")
         self.llm = Ollama(
             model= self.ollama_config["model"],
             base_url= self.ollama_config["base_url"],
@@ -57,6 +58,7 @@ class DatabaseWorkflow(Workflow):
             max_tokens= self.ollama_config["max_tokens"],
             temperature= self.ollama_config["temperature"],
             request_timeout= self.ollama_config["request_timeout"],
+            thinking=False
         )
         assert self.llm.metadata.is_function_calling_model, "LLM must be a function calling model"
 
@@ -91,7 +93,7 @@ class DatabaseWorkflow(Workflow):
         chat_history = self.memory.get()
 
         llm_input = ReActChatFormatter().format(tools=self.tools, chat_history=chat_history, current_reasoning=steps)
-        
+
         return LLMInputEvent(input=llm_input)
     
     @step
@@ -121,9 +123,7 @@ class DatabaseWorkflow(Workflow):
                 return StopEvent(result=step.response)
             elif isinstance(step, ActionReasoningStep):
                 # Tool call are requested by the LLM
-                logger.info(f"🔍 Action: {step.thought}")
-                logger.info(f"🔍 Action inputs: {step.action_input}")
-                logger.info(f"🔍 Tool call requested: {step.action}")
+                logger.info(f"🔍 Action: {step.get_content()}")
                 return ToolCallEvent(tool_calls=[ToolSelection(
                                                 tool_id="Tool_ID",
                                                 tool_name=step.action, 

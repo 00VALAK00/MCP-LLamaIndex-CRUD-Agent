@@ -165,7 +165,7 @@ def get_all_records(table_name: str, limit: Optional[int] = 100):
         conn.close()
 
 @mcp.tool(description="finds records by specific criteria")
-def find_records(table_name: str, conditions: str):
+def get_all_records_by_criterion(table_name: str, where_clause: str):
     """
     Args:
         table_name (str): Name of the table to query
@@ -181,7 +181,7 @@ def find_records(table_name: str, conditions: str):
     cursor = conn.cursor()
     try:        
         
-        query = f"SELECT * FROM {table_name} WHERE {conditions}"
+        query = f"SELECT * FROM {table_name} WHERE {where_clause}"
         
         cursor.execute(query)
         results = cursor.fetchall()

@@ -24,10 +24,10 @@ class OllamaConfig:
             "model": os.getenv("OLLAMA_MODEL", "qwen3:latest"),
             "base_url": os.getenv("OLLAMA_BASE_URL_LOCAL") if not is_docker else os.getenv("OLLAMA_BASE_URL_DOCKER"),
             "base_url": os.getenv("OLLAMA_BASE_URL_LOCAL"),
-            "context_window": int(os.getenv("OLLAMA_CONTEXT_WINDOW", "10000")),
-            "max_tokens": int(os.getenv("OLLAMA_MAX_TOKENS", "2500")),
-            "temperature": float(os.getenv("OLLAMA_TEMPERATURE", "0.6")),
-            "request_timeout": float(os.getenv("OLLAMA_REQUEST_TIMEOUT", "120.0")),
+            "context_window": os.getenv("OLLAMA_CONTEXT_WINDOW"),
+            "max_tokens": os.getenv("OLLAMA_MAX_TOKENS"),
+            "temperature": os.getenv("OLLAMA_TEMPERATURE"),
+            "request_timeout": os.getenv("OLLAMA_REQUEST_TIMEOUT"),
         }
 
 
@@ -44,3 +44,4 @@ class DatabaseConfig:
             "user": os.getenv("DB_USER", "postgres"),
             "password": os.getenv("DB_PASSWORD", "password"),
         }
+    
